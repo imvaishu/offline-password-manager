@@ -1,19 +1,16 @@
 package com.example.offlinepasswordmanager;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class EnterPassword extends AppCompatActivity {
 
     EditText editText;
-    Button enter;
 
     String password;
 
@@ -22,26 +19,30 @@ public class EnterPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_password);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("DEMO", 0);
-        password = sharedPreferences.getString("PASSWORD", "");
-
+        password = SharedPref.getPassword(this);
 
         editText = (EditText) findViewById(R.id.password);
-        enter = (Button) findViewById(R.id.enterbtn);
 
-        enter.setOnClickListener(new View.OnClickListener() {
+        editText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 String text = editText.getText().toString();
 
                 if (text.equals(password)) {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                     finish();
-                } else {
-                    Toast.makeText(EnterPassword.this, "Wrong Password!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
 }

@@ -1,14 +1,13 @@
 package com.example.offlinepasswordmanager;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class CreatePassword extends AppCompatActivity {
 
@@ -35,10 +34,7 @@ public class CreatePassword extends AppCompatActivity {
 
                 } else {
                     if (password1.equals(password2)) {
-                        SharedPreferences sharedPreferences = getSharedPreferences("DEMO", 0);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("PASSWORD", password1);
-                        editor.apply();
+                        SharedPref.savePassword(getApplicationContext(), password1);
 
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
