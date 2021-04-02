@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public class CreatePassword extends AppCompatActivity {
 
     EditText editText1, editText2;
@@ -34,7 +37,13 @@ public class CreatePassword extends AppCompatActivity {
 
                 } else {
                     if (password1.equals(password2)) {
-                        SharedPref.savePassword(getApplicationContext(), password1);
+                        try {
+                            EncryptedSharedPref.savePassword(getApplicationContext(), "PASSWORD",password1);
+                        } catch (GeneralSecurityException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
