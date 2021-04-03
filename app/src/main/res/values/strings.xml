@@ -4,4 +4,8 @@
     <string name="username">username</string>
     <string name="password">password</string>
     <string name="save">save</string>
+    <string name="Lable">\"Label : \"</string>
+    <string name="Username">\"Username : \"</string>
+    <string name="Password">\"Password : \"</string>
+    <string name="back">back</string>
 </resources>

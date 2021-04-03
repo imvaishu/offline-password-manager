@@ -12,12 +12,12 @@ import java.security.GeneralSecurityException;
 public class EncryptedSharedPref {
     private static SharedPreferences encryptedSharedPreferences;
 
-    public static String getPassword(Context context, String key) {
+    public static String get(Context context, String key) {
         SharedPreferences encryptedSharedPreference = getEncryptedSharedPreferences(context);
         return encryptedSharedPreference.getString(key, "");
     }
 
-    public static void savePassword(Context context, String key, String value) {
+    public static void save(Context context, String key, String value) {
         SharedPreferences encryptedSharedPreference = getEncryptedSharedPreferences(context);
         SharedPreferences.Editor editor = encryptedSharedPreference.edit();
         editor.putString(key, value);

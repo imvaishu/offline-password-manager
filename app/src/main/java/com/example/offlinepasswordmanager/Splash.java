@@ -7,9 +7,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 public class Splash extends AppCompatActivity {
     TextView textView;
     String password;
@@ -19,7 +16,7 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        password = EncryptedSharedPref.getPassword(this, "PASSWORD");
+        password = EncryptedSharedPref.get(this, "PASSWORD");
 
         textView = findViewById(R.id.loading);
 

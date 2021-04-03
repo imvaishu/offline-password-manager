@@ -2,15 +2,11 @@ package com.example.offlinepasswordmanager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 public class CreatePassword extends AppCompatActivity {
     EditText editText1, editText2;
@@ -34,7 +30,7 @@ public class CreatePassword extends AppCompatActivity {
 
             } else {
                 if (password1.equals(password2)) {
-                    EncryptedSharedPref.savePassword(getApplicationContext(), "PASSWORD", password1);
+                    EncryptedSharedPref.save(getApplicationContext(), "PASSWORD", password1);
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                     finish();
