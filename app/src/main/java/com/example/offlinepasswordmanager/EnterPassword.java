@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class EnterPassword extends AppCompatActivity {
-
     EditText editText;
-
     String password;
 
     @Override
@@ -22,13 +20,7 @@ public class EnterPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_password);
 
-        try {
-            password = EncryptedSharedPref.getPassword(this,"PASSWORD");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        password = EncryptedSharedPref.getPassword(this, "PASSWORD");
 
         editText = (EditText) findViewById(R.id.password);
 

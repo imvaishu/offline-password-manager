@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public class CreatePassword extends AppCompatActivity {
-
     EditText editText1, editText2;
     Button confirm;
 
@@ -26,32 +25,22 @@ public class CreatePassword extends AppCompatActivity {
         editText2 = (EditText) findViewById(R.id.password2);
         confirm = (Button) findViewById(R.id.confirmbtn);
 
-        confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String password1 = editText1.getText().toString();
-                String password2 = editText2.getText().toString();
+        confirm.setOnClickListener(v -> {
+            String password1 = editText1.getText().toString();
+            String password2 = editText2.getText().toString();
 
-                if (password1.equals("") || password2.equals("")) {
-                    Toast.makeText(CreatePassword.this, "Please Enter Password!", Toast.LENGTH_SHORT).show();
+            if (password1.equals("") || password2.equals("")) {
+                Toast.makeText(CreatePassword.this, "Please Enter Password!", Toast.LENGTH_SHORT).show();
 
+            } else {
+                if (password1.equals(password2)) {
+                    EncryptedSharedPref.savePassword(getApplicationContext(), "PASSWORD", password1);
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 } else {
-                    if (password1.equals(password2)) {
-                        try {
-                            EncryptedSharedPref.savePassword(getApplicationContext(), "PASSWORD",password1);
-                        } catch (GeneralSecurityException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    Toast.makeText(CreatePassword.this, "Password doesn't match!", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(CreatePassword.this, "Password doesn't match!", Toast.LENGTH_SHORT).show();
-
-                    }
                 }
             }
         });

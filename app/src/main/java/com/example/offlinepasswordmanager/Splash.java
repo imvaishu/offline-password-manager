@@ -19,32 +19,23 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        try {
-            password = EncryptedSharedPref.getPassword(this,"PASSWORD");
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        password = EncryptedSharedPref.getPassword(this, "PASSWORD");
 
         textView = findViewById(R.id.loading);
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        handler.postDelayed(() -> {
 
-                Intent intent;
-                if (password.equals("")) {
-                    intent = new Intent(getApplicationContext(), CreatePassword.class);
+            Intent intent;
+            if (password.equals("")) {
+                intent = new Intent(getApplicationContext(), CreatePassword.class);
 
-                } else {
-                    intent = new Intent(getApplicationContext(), EnterPassword.class);
-                }
-                startActivity(intent);
-                finish();
-
+            } else {
+                intent = new Intent(getApplicationContext(), EnterPassword.class);
             }
+            startActivity(intent);
+            finish();
+
         }, 2000);
 
 
