@@ -1,17 +1,23 @@
 package com.example.offlinepasswordmanager;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -44,16 +50,18 @@ class CredentialAdapter extends ArrayAdapter<String> {
             setLabel(popupView, "Username : " + username, R.id.credential_username);
             setLabel(popupView, "Password : " + password, R.id.credential_password);
 
-            Button back = popupView.findViewById(R.id.back);
+            FloatingActionButton back = popupView.findViewById(R.id.back);
 
             back.setOnClickListener(v1 -> {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("password", password);
+                clipboard.setPrimaryClip(clip);
                 popupWindow.dismiss();
             });
         });
         return view;
     }
-
-    private void setLabel(View popupView, String labelName, int id) {
+        private void setLabel(View popupView, String labelName, int id) {
         TextView label = popupView.findViewById(id);
         label.setText(labelName);
     }
@@ -66,5 +74,4 @@ class CredentialAdapter extends ArrayAdapter<String> {
         popupWindow.showAtLocation(fab, Gravity.CENTER, 0, 0);
         return popupWindow;
     }
-
 }
