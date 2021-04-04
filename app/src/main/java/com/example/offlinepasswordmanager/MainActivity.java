@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean isAlreadyPresent = isLabelAlreadyPresent(labelAsString);
                     if (isAlreadyPresent) {
                         label.requestFocus();
-                        label.setError("LABEL SHOULD BE UNIQUE :)");
+                        label.setError("LABEL SHOULD BE UNIQUE");
                     }
                 }
             });
@@ -84,18 +84,18 @@ public class MainActivity extends AppCompatActivity {
                 String usernameAsString = username.getText().toString();
                 String passwordAsString = password.getText().toString();
 
-                Credential credential = new Credential(labelAsString, usernameAsString, passwordAsString);
+                Credential credential = new Credential(labelAsString);
 
                 if(labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || isLabelAlreadyPresent(labelAsString)){
                     return;
                 }
 
+                saveCredentialsInEncryptedFormat(credential,usernameAsString,passwordAsString);
+
                 AsyncTask.execute(() -> {
                     credentialDao.insertAll(credential);
                 });
 
-                adapter.add(credential);
-                adapter.notifyDataSetChanged();
                 popupWindow.dismiss();
 
             });
@@ -118,5 +118,14 @@ public class MainActivity extends AppCompatActivity {
     private View getPopupView(int p) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(p, null);
+    }
+
+    public void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
+        EncryptedSharedPref.save(getApplicationContext(), credential.label + "username", username);
+        EncryptedSharedPref.save(getApplicationContext(), credential.label + "password", password);
+
+        adapter.add(credential);
+        assert adapter != null;
+        adapter.notifyDataSetChanged();
     }
 }

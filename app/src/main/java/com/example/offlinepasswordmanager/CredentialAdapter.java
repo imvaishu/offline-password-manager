@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,16 +44,20 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
 
             final PopupWindow popupWindow = getPopupWindow(view, popupView);
 
+            String username = EncryptedSharedPref.get(context, credential.label + "username");
+            String password = EncryptedSharedPref.get(context, credential.label + "password");
+
             setView(popupView, "Label : " + credential.label, R.id.credential_label);
-            setView(popupView, "Username : " + credential.username, R.id.credential_username);
-            setView(popupView, "Password : " + credential.password, R.id.credential_password);
+            setView(popupView, "Username : " + username, R.id.credential_username);
+            setView(popupView, "Password : " + password, R.id.credential_password);
 
             FloatingActionButton back = popupView.findViewById(R.id.back);
 
             back.setOnClickListener(v1 -> {
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("password", credential.password);
+                ClipData clip = ClipData.newPlainText("password", password);
                 clipboard.setPrimaryClip(clip);
+                Toast.makeText(context,"PASSWORD HAS BEEN COPIED!",Toast.LENGTH_SHORT).show();
                 popupWindow.dismiss();
             });
         });
