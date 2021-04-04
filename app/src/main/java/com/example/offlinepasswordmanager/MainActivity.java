@@ -1,10 +1,10 @@
 package com.example.offlinepasswordmanager;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -12,21 +12,33 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayAdapter adapter;
+    CredentialAdapter adapter;
     ArrayList<String> listItems = new ArrayList<>();
+    AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        adapter = new CredentialAdapter(this, R.layout.activity_listview, listItems, getPopupView(R.layout.credential_popup));
+        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "offline-password-manager").build();
+        CredentialDAO credentialDao = db.credentialDAO();
+        List<Credential> defaultCredentials = new ArrayList<>();
+
+        AsyncTask.execute(() -> {
+            List<Credential> credentials = credentialDao.getAll();
+            defaultCredentials.addAll(credentials);
+        });
+
+        adapter = new CredentialAdapter(getApplicationContext(), R.layout.activity_listview, defaultCredentials, getPopupView(R.layout.credential_popup));
 
         ListView listView = (ListView) findViewById(R.id.mobile_list);
         listView.setAdapter(adapter);
@@ -46,6 +58,15 @@ public class MainActivity extends AppCompatActivity {
 
             save.setOnClickListener(v1 -> {
                 addItems(v1, label, username, password);
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Credential credential = new Credential(label.getText().toString(), username.getText().toString(), password.getText().toString());
+                        adapter.add(credential);
+                        adapter.notifyDataSetChanged();
+                        credentialDao.insertAll(credential);
+                    }
+                });
                 popupWindow.dismiss();
             });
         });

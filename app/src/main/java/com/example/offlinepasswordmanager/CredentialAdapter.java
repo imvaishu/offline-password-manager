@@ -7,9 +7,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -19,19 +16,17 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
+import java.util.List;
 
-class CredentialAdapter extends ArrayAdapter<String> {
+class CredentialAdapter extends ArrayAdapter<Credential> {
 
     @NonNull
     private final Context context;
-    private final ArrayList<String> items;
     private final View popupView;
 
-    public CredentialAdapter(@NonNull Context context, int resource, @NonNull ArrayList<String> items, View popupView) {
+    public CredentialAdapter(@NonNull Context context, int resource, @NonNull List<Credential> items, View popupView) {
         super(context, resource, items);
         this.context = context;
-        this.items = items;
         this.popupView = popupView;
     }
 
@@ -39,29 +34,36 @@ class CredentialAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = super.getView(position, convertView, parent);
+
+        Credential credential = getItem(position);
+
+        setView(view,formatLabel(position),R.id.label);
+
         view.setOnClickListener(v -> {
 
             final PopupWindow popupWindow = getPopupWindow(view, popupView);
-            String labelName = this.items.get(position);
-            String username = EncryptedSharedPref.get(context, labelName + "username");
-            String password = EncryptedSharedPref.get(context, labelName + "password");
 
-            setLabel(popupView, "Label : " + labelName, R.id.credential_label);
-            setLabel(popupView, "Username : " + username, R.id.credential_username);
-            setLabel(popupView, "Password : " + password, R.id.credential_password);
+            setView(popupView, "Label : " + credential.label, R.id.credential_label);
+            setView(popupView, "Username : " + credential.username, R.id.credential_username);
+            setView(popupView, "Password : " + credential.password, R.id.credential_password);
 
             FloatingActionButton back = popupView.findViewById(R.id.back);
 
             back.setOnClickListener(v1 -> {
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("password", password);
+                ClipData clip = ClipData.newPlainText("password", credential.password);
                 clipboard.setPrimaryClip(clip);
                 popupWindow.dismiss();
             });
         });
         return view;
     }
-        private void setLabel(View popupView, String labelName, int id) {
+
+    private String formatLabel(int position) {
+        return new StringBuilder().append(position + 1).append(". ").append(getItem(position).label).toString();
+    }
+
+    private void setView(View popupView, String labelName, int id) {
         TextView label = popupView.findViewById(id);
         label.setText(labelName);
     }
