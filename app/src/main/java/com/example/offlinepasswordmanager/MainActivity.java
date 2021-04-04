@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void afterTextChanged(Editable s) {
                     String labelAsString = label.getText().toString();
-                    boolean isAlreadyPresent = credentials.stream().anyMatch(e -> labelAsString.equals(e.label));
+                    boolean isAlreadyPresent = isLabelAlreadyPresent(labelAsString);
                     if (isAlreadyPresent) {
                         label.requestFocus();
                         label.setError("LABEL SHOULD BE UNIQUE :)");
@@ -80,21 +80,25 @@ public class MainActivity extends AppCompatActivity {
             Button save = popupView.findViewById(R.id.save);
 
             save.setOnClickListener(v1 -> {
+                String labelAsString = label.getText().toString();
+                String usernameAsString = username.getText().toString();
+                String passwordAsString = password.getText().toString();
+
+                Credential credential = new Credential(labelAsString, usernameAsString, passwordAsString);
                 AsyncTask.execute(() -> {
-
-                    String labelAsString = label.getText().toString();
-                    String usernameAsString = username.getText().toString();
-                    String passwordAsString = password.getText().toString();
-
-                    Credential credential = new Credential(labelAsString, usernameAsString, passwordAsString);
-                    adapter.add(credential);
-                    assert adapter != null;
                     credentialDao.insertAll(credential);
                 });
+
+                adapter.add(credential);
                 adapter.notifyDataSetChanged();
                 popupWindow.dismiss();
+
             });
         });
+    }
+
+    private boolean isLabelAlreadyPresent(String label) {
+        return credentials.stream().anyMatch(e -> label.equals(e.label));
     }
 
     private PopupWindow getPopupWindow(View fab, View popupView) {
