@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean isAlreadyPresent = credentials.stream().anyMatch(e -> labelAsString.equals(e.label));
                     if (isAlreadyPresent) {
                         label.requestFocus();
-                        label.setError("ENTER ONLY ALPHABETICAL CHARACTER");
+                        label.setError("LABEL SHOULD BE UNIQUE :)");
                     }
                 }
             });
