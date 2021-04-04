@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="13"
+    android:orientation="horizontal">
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/label"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="10dip"
-    android:textSize="20dp"
-    android:textColor="@color/black"
-    >
-</TextView>
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/label"
+        android:layout_width="0dp"
+        android:layout_weight="12"
+        android:layout_height="fill_parent"
+        android:padding="10dip"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        >
+
+    </TextView>
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:text="X"
+        android:background="@color/cardview_light_background"
+        android:textColor="@color/black"
+        android:layout_gravity="bottom|end"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        />
+</LinearLayout>

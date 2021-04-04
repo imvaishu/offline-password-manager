@@ -24,6 +24,14 @@ public class EncryptedSharedPref {
         editor.apply();
     }
 
+
+    public static void delete(Context context, String key) {
+        SharedPreferences encryptedSharedPreference = getEncryptedSharedPreferences(context);
+        SharedPreferences.Editor editor = encryptedSharedPreference.edit();
+        editor.remove(key);
+        editor.apply();
+    }
+
     private static SharedPreferences getEncryptedSharedPreferences(Context context) {
         try {
             String masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);

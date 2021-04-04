@@ -3,6 +3,7 @@ package com.example.offlinepasswordmanager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -26,7 +28,7 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
     private final View popupView;
 
     public CredentialAdapter(@NonNull Context context, int resource, @NonNull List<Credential> items, View popupView) {
-        super(context, resource, items);
+        super(context, R.layout.activity_listview, R.id.label, items);
         this.context = context;
         this.popupView = popupView;
     }
@@ -38,9 +40,10 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
 
         Credential credential = getItem(position);
 
-        setView(view,formatLabel(position),R.id.label);
+        setView(view, formatLabel(position), R.id.label);
 
-        view.setOnClickListener(v -> {
+        View textView = view.findViewById(R.id.label);
+        textView.setOnClickListener(v -> {
 
             final PopupWindow popupWindow = getPopupWindow(view, popupView);
 
@@ -57,10 +60,33 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("password", password);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(context,"PASSWORD HAS BEEN COPIED!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "PASSWORD HAS BEEN COPIED!", Toast.LENGTH_SHORT).show();
                 popupWindow.dismiss();
             });
         });
+
+        View deleteBtn = view.findViewById(R.id.delete);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AppDatabase db = Room.databaseBuilder(context, AppDatabase.class, "offline-password-manager").build();
+                CredentialDAO credentialDao = db.credentialDAO();
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        credentialDao.delete(credential);
+                    }
+                });
+
+                EncryptedSharedPref.delete(context, credential.label + "username");
+                EncryptedSharedPref.delete(context, credential.label + "password");
+
+                remove(credential);
+                notifyDataSetChanged();
+                Toast.makeText(context, credential.label.toUpperCase() + " GOT DELETED!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return view;
     }
 

@@ -1,6 +1,7 @@
 package com.example.offlinepasswordmanager;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -14,4 +15,6 @@ public interface CredentialDAO {
     @Insert
     void insertAll(Credential... credentials);
 
+    @Delete
+    void delete(Credential credential);
 }
