@@ -21,7 +21,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     CredentialAdapter adapter;
-    ArrayList<String> listItems = new ArrayList<>();
     AppDatabase db;
 
     @Override
@@ -57,32 +56,16 @@ public class MainActivity extends AppCompatActivity {
             Button save = popupView.findViewById(R.id.save);
 
             save.setOnClickListener(v1 -> {
-                addItems(v1, label, username, password);
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Credential credential = new Credential(label.getText().toString(), username.getText().toString(), password.getText().toString());
-                        adapter.add(credential);
-                        adapter.notifyDataSetChanged();
-                        credentialDao.insertAll(credential);
-                    }
+                AsyncTask.execute(() -> {
+                    Credential credential = new Credential(label.getText().toString(), username.getText().toString(), password.getText().toString());
+                    adapter.add(credential);
+                    assert adapter != null;
+                    credentialDao.insertAll(credential);
                 });
+                adapter.notifyDataSetChanged();
                 popupWindow.dismiss();
             });
         });
-    }
-
-    public void addItems(View v, EditText labelName, EditText key, EditText value) {
-        String label = labelName.getText().toString();
-        String username = key.getText().toString();
-        String password = value.getText().toString();
-
-        EncryptedSharedPref.save(getApplicationContext(), label + "username", username);
-        EncryptedSharedPref.save(getApplicationContext(), label + "password", password);
-
-        listItems.add(label);
-        assert adapter != null;
-        adapter.notifyDataSetChanged();
     }
 
     private PopupWindow getPopupWindow(View fab, View popupView) {
