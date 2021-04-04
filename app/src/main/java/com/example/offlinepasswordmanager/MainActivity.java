@@ -2,6 +2,8 @@ package com.example.offlinepasswordmanager;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     CredentialAdapter adapter;
     AppDatabase db;
+    List<Credential> credentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         List<Credential> defaultCredentials = new ArrayList<>();
 
         AsyncTask.execute(() -> {
-            List<Credential> credentials = credentialDao.getAll();
+            credentials = credentialDao.getAll();
             defaultCredentials.addAll(credentials);
         });
 
@@ -50,6 +53,27 @@ public class MainActivity extends AppCompatActivity {
             final PopupWindow popupWindow = getPopupWindow(fab, popupView);
 
             EditText label = popupView.findViewById(R.id.label);
+
+            label.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String labelAsString = label.getText().toString();
+                    boolean isAlreadyPresent = credentials.stream().anyMatch(e -> labelAsString.equals(e.label));
+                    if (isAlreadyPresent) {
+                        label.requestFocus();
+                        label.setError("ENTER ONLY ALPHABETICAL CHARACTER");
+                    }
+                }
+            });
+
             EditText username = popupView.findViewById(R.id.username);
             EditText password = popupView.findViewById(R.id.subPassword);
 
@@ -57,7 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
             save.setOnClickListener(v1 -> {
                 AsyncTask.execute(() -> {
-                    Credential credential = new Credential(label.getText().toString(), username.getText().toString(), password.getText().toString());
+
+                    String labelAsString = label.getText().toString();
+                    String usernameAsString = username.getText().toString();
+                    String passwordAsString = password.getText().toString();
+
+                    Credential credential = new Credential(labelAsString, usernameAsString, passwordAsString);
                     adapter.add(credential);
                     assert adapter != null;
                     credentialDao.insertAll(credential);
