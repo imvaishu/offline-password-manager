@@ -85,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
                 String passwordAsString = password.getText().toString();
 
                 Credential credential = new Credential(labelAsString, usernameAsString, passwordAsString);
+
+                if(labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || isLabelAlreadyPresent(labelAsString)){
+                    return;
+                }
+
                 AsyncTask.execute(() -> {
                     credentialDao.insertAll(credential);
                 });
