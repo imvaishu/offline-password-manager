@@ -20,17 +20,20 @@ import androidx.room.Room;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 class CredentialAdapter extends ArrayAdapter<Credential> {
 
     @NonNull
     private final Context context;
-    private final View popupView;
+    private final View credentialPopupView;
+    private final View deletePopupView;
 
-    public CredentialAdapter(@NonNull Context context, int resource, @NonNull List<Credential> items, View popupView) {
+    public CredentialAdapter(@NonNull Context context, @NonNull List<Credential> items, View credentialPopupView, View deletePopupView) {
         super(context, R.layout.activity_listview, R.id.label, items);
         this.context = context;
-        this.popupView = popupView;
+        this.credentialPopupView = credentialPopupView;
+        this.deletePopupView = deletePopupView;
     }
 
     @NonNull
@@ -45,16 +48,31 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
         View textView = view.findViewById(R.id.label);
         textView.setOnClickListener(v -> {
 
-            final PopupWindow popupWindow = getPopupWindow(view, popupView);
+            final PopupWindow popupWindow = getPopupWindow(view, credentialPopupView);
 
             String username = EncryptedSharedPref.get(context, credential.label + "username");
             String password = EncryptedSharedPref.get(context, credential.label + "password");
 
-            setView(popupView, "Label : " + credential.label, R.id.credential_label);
-            setView(popupView, "Username : " + username, R.id.credential_username);
-            setView(popupView, "Password : " + password, R.id.credential_password);
+            setView(credentialPopupView, "Label : " + credential.label, R.id.credential_label);
+            setView(credentialPopupView, "Username : " + username, R.id.credential_username);
+            String hiddenPassword = password.replaceAll(".", "*");;
+            setView(credentialPopupView, "Password : " + hiddenPassword, R.id.credential_password);
 
-            FloatingActionButton back = popupView.findViewById(R.id.back);
+            credentialPopupView.findViewById(R.id.reveal).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TextView textView1  = credentialPopupView.findViewById(R.id.credential_password);
+                    boolean isRevealed = textView1.getText().toString().equals("Password : " + hiddenPassword);
+                    if(isRevealed){
+                         setView(credentialPopupView, "Password : " + password, R.id.credential_password);
+                         return;
+                    }
+                    String hiddenPassword = password.replaceAll(".", "*");;
+                    setView(credentialPopupView, "Password : " + hiddenPassword, R.id.credential_password);
+                }
+            });
+
+            FloatingActionButton back = credentialPopupView.findViewById(R.id.back);
 
             back.setOnClickListener(v1 -> {
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -66,17 +84,19 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
         });
 
         View deleteBtn = view.findViewById(R.id.delete);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        
+        deleteBtn.setOnClickListener(v -> {
+            TextView deleteConfirmationMsg = deletePopupView.findViewById(R.id.delete_confirmation_msg);
+            deleteConfirmationMsg.setText("Are you sure, You want to delete " + credential.label + "'s credential ?");
+            final PopupWindow popupWindow = getPopupWindow(view, deletePopupView);
+
+            deletePopupView.findViewById(R.id.cancel).setOnClickListener(v1 -> popupWindow.dismiss());
+
+            deletePopupView.findViewById(R.id.delete).setOnClickListener(v2 -> {
                 AppDatabase db = Room.databaseBuilder(context, AppDatabase.class, "offline-password-manager").build();
                 CredentialDAO credentialDao = db.credentialDAO();
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        credentialDao.delete(credential);
-                    }
-                });
+                
+                AsyncTask.execute(() -> credentialDao.delete(credential));
 
                 EncryptedSharedPref.delete(context, credential.label + "username");
                 EncryptedSharedPref.delete(context, credential.label + "password");
@@ -84,7 +104,8 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
                 remove(credential);
                 notifyDataSetChanged();
                 Toast.makeText(context, credential.label.toUpperCase() + " GOT DELETED!", Toast.LENGTH_SHORT).show();
-            }
+                popupWindow.dismiss();
+            });
         });
 
         return view;

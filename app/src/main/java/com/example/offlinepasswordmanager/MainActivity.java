@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
             defaultCredentials.addAll(credentials);
         });
 
-        adapter = new CredentialAdapter(getApplicationContext(), R.layout.activity_listview, defaultCredentials, getPopupView(R.layout.credential_popup));
+        adapter = new CredentialAdapter(getApplicationContext(), defaultCredentials, getPopupView(R.layout.credential_popup), getPopupView(R.layout.delete_confirmation_popup));
 
         ListView listView = (ListView) findViewById(R.id.mobile_list);
         listView.setAdapter(adapter);
@@ -86,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
                 Credential credential = new Credential(labelAsString);
 
-                if(labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || isLabelAlreadyPresent(labelAsString)){
+                if (labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || isLabelAlreadyPresent(labelAsString)) {
                     return;
                 }
 
-                saveCredentialsInEncryptedFormat(credential,usernameAsString,passwordAsString);
+                saveCredentialsInEncryptedFormat(credential, usernameAsString, passwordAsString);
 
                 AsyncTask.execute(() -> {
                     credentialDao.insertAll(credential);

@@ -8,4 +8,7 @@
     <string name="Username">\"Username : \"</string>
     <string name="Password">\"Password : \"</string>
     <string name="back">back</string>
+    <string name="delete_confirmation_msg">Are you sure , You want to delete?</string>
+    <string name="delete">delete</string>
+    <string name="cancel">cancel</string>
 </resources>

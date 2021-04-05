@@ -6,7 +6,7 @@
     android:weightSum="13"
     android:orientation="horizontal">
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/label"
         android:layout_width="0dp"
         android:layout_weight="12"

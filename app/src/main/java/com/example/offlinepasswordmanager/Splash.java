@@ -20,6 +20,9 @@ public class Splash extends AppCompatActivity {
 
         textView = findViewById(R.id.loading);
 
+        //TODO: Extract handler
+        //TODO: Write 100% unit test
+
         Handler handler = new Handler();
         handler.postDelayed(() -> {
 
@@ -34,7 +37,5 @@ public class Splash extends AppCompatActivity {
             finish();
 
         }, 2000);
-
-
     }
 }
