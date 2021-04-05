@@ -25,8 +25,7 @@
         android:layout_weight="1"
         android:text="X"
         android:background="@color/cardview_light_background"
-        android:textColor="@color/black"
+        android:textColor="@color/design_default_color_error"
         android:layout_gravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_menu_delete"
         />
 </LinearLayout>

@@ -3,11 +3,13 @@ package com.example.offlinepasswordmanager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -65,7 +67,7 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
                     boolean isRevealed = textView1.getText().toString().equals("Password : " + hiddenPassword);
                     if(isRevealed){
                          setView(credentialPopupView, "Password : " + password, R.id.credential_password);
-                         return;
+                        return;
                     }
                     String hiddenPassword = password.replaceAll(".", "*");;
                     setView(credentialPopupView, "Password : " + hiddenPassword, R.id.credential_password);
