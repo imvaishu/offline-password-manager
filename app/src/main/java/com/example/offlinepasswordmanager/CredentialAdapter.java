@@ -3,13 +3,11 @@ package com.example.offlinepasswordmanager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -22,7 +20,6 @@ import androidx.room.Room;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 class CredentialAdapter extends ArrayAdapter<Credential> {
 
@@ -95,8 +92,8 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
             deletePopupView.findViewById(R.id.cancel).setOnClickListener(v1 -> popupWindow.dismiss());
 
             deletePopupView.findViewById(R.id.delete).setOnClickListener(v2 -> {
-                AppDatabase db = Room.databaseBuilder(context, AppDatabase.class, "offline-password-manager").build();
-                CredentialDAO credentialDao = db.credentialDAO();
+                AppDatabase db = AppDatabase.getInstance(context);
+                CredentialDAO credentialDao = db.getCredentialDAO();
                 
                 AsyncTask.execute(() -> credentialDao.delete(credential));
 

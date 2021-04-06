@@ -14,7 +14,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -31,8 +30,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "offline-password-manager").build();
-        CredentialDAO credentialDao = db.credentialDAO();
+        //TODO:Remove db intractions from main activity
+
+        db = AppDatabase.getInstance(getApplicationContext());
+        CredentialDAO credentialDao = db.getCredentialDAO();
         List<Credential> defaultCredentials = new ArrayList<>();
 
         AsyncTask.execute(() -> {
@@ -47,7 +48,11 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton fab = findViewById(R.id.fab);
 
-        fab.setOnClickListener(v -> {
+        fab.setOnClickListener(getSaveCredentialPopup(credentialDao, fab));
+    }
+
+    private View.OnClickListener getSaveCredentialPopup(CredentialDAO credentialDao, FloatingActionButton fab) {
+        return view -> {
             View popupView = getPopupView(R.layout.popup_window);
 
             final PopupWindow popupWindow = getPopupWindow(fab, popupView);
@@ -99,7 +104,16 @@ public class MainActivity extends AppCompatActivity {
                 popupWindow.dismiss();
 
             });
-        });
+        };
+    }
+
+    public void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
+        EncryptedSharedPref.save(getApplicationContext(), credential.label + "username", username);
+        EncryptedSharedPref.save(getApplicationContext(), credential.label + "password", password);
+
+        adapter.add(credential);
+        assert adapter != null;
+        adapter.notifyDataSetChanged();
     }
 
     private boolean isLabelAlreadyPresent(String label) {
@@ -118,14 +132,5 @@ public class MainActivity extends AppCompatActivity {
     private View getPopupView(int p) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(p, null);
-    }
-
-    public void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
-        EncryptedSharedPref.save(getApplicationContext(), credential.label + "username", username);
-        EncryptedSharedPref.save(getApplicationContext(), credential.label + "password", password);
-
-        adapter.add(credential);
-        assert adapter != null;
-        adapter.notifyDataSetChanged();
     }
 }
