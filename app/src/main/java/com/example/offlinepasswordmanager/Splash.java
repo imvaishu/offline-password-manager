@@ -17,15 +17,14 @@ public class Splash extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         password = EncryptedSharedPref.get(this, "PASSWORD");
-
         textView = findViewById(R.id.loading);
-
-        //TODO: Extract handler
         //TODO: Write 100% unit test
-
         Handler handler = new Handler();
-        handler.postDelayed(() -> {
+        handler.postDelayed(getRunnableHandler(), 2000);
+    }
 
+    private Runnable getRunnableHandler() {
+        return () -> {
             Intent intent;
             if (password.equals("")) {
                 intent = new Intent(getApplicationContext(), CreatePassword.class);
@@ -35,7 +34,6 @@ public class Splash extends AppCompatActivity {
             }
             startActivity(intent);
             finish();
-
-        }, 2000);
+        };
     }
 }
