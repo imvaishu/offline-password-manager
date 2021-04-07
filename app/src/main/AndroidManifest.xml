@@ -10,8 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OfflinePasswordManager">
         <activity android:name=".MainActivity" />
-        <activity android:name=".CreatePassword"></activity>
-        <activity android:name=".EnterPassword" />
+        <activity android:name=".MasterPasswordCredential"></activity>
+        <activity android:name=".MasterPassword" />
         <activity android:name=".Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

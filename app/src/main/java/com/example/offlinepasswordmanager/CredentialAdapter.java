@@ -41,11 +41,47 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
         View view = super.getView(position, convertView, parent);
 
         Credential credential = getItem(position);
-
         setView(view, formatLabel(position), R.id.label);
 
         View textView = view.findViewById(R.id.label);
-        textView.setOnClickListener(v -> {
+        textView.setOnClickListener(getClickedCredential(view, credential));
+
+        View deleteBtn = view.findViewById(R.id.delete);
+        deleteBtn.setOnClickListener(deleteClickedCredential(view, credential));
+
+        return view;
+    }
+
+    private View.OnClickListener deleteClickedCredential(View view, Credential credential) {
+        return v -> {
+            TextView deleteConfirmationMsg = deletePopupView.findViewById(R.id.delete_confirmation_msg);
+            deleteConfirmationMsg.setText("Are you sure, You want to delete " + credential.label + "'s credential ?");
+
+            final PopupWindow popupWindow = getPopupWindow(view, deletePopupView);
+            deletePopupView.findViewById(R.id.cancel).setOnClickListener(v1 -> popupWindow.dismiss());
+            deletePopupView.findViewById(R.id.delete).setOnClickListener(deleteCredentialOnConfirm(credential, popupWindow));
+        };
+    }
+
+    private View.OnClickListener deleteCredentialOnConfirm(Credential credential, PopupWindow popupWindow) {
+        return v2 -> {
+            AppDatabase db = AppDatabase.getInstance(context);
+            CredentialDAO credentialDao = db.getCredentialDAO();
+
+            AsyncTask.execute(() -> credentialDao.delete(credential));
+
+            EncryptedSharedPref.delete(context, credential.label + "username");
+            EncryptedSharedPref.delete(context, credential.label + "password");
+
+            remove(credential);
+            notifyDataSetChanged();
+            Toast.makeText(context, credential.label.toUpperCase() + " GOT DELETED!", Toast.LENGTH_SHORT).show();
+            popupWindow.dismiss();
+        };
+    }
+
+    private View.OnClickListener getClickedCredential(View view, Credential credential) {
+        return v -> {
 
             final PopupWindow popupWindow = getPopupWindow(view, credentialPopupView);
 
@@ -57,57 +93,34 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
             String hiddenPassword = password.replaceAll(".", "*");;
             setView(credentialPopupView, "Password : " + hiddenPassword, R.id.credential_password);
 
-            credentialPopupView.findViewById(R.id.reveal).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    TextView textView1  = credentialPopupView.findViewById(R.id.credential_password);
-                    boolean isRevealed = textView1.getText().toString().equals("Password : " + hiddenPassword);
-                    if(isRevealed){
-                         setView(credentialPopupView, "Password : " + password, R.id.credential_password);
-                        return;
-                    }
-                    String hiddenPassword = password.replaceAll(".", "*");;
-                    setView(credentialPopupView, "Password : " + hiddenPassword, R.id.credential_password);
-                }
-            });
+            credentialPopupView.findViewById(R.id.reveal).setOnClickListener(revealPassword(password, hiddenPassword));
 
             FloatingActionButton back = credentialPopupView.findViewById(R.id.back);
+            back.setOnClickListener(copyPassword(popupWindow, password));
+        };
+    }
 
-            back.setOnClickListener(v1 -> {
-                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("password", password);
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(context, "PASSWORD HAS BEEN COPIED!", Toast.LENGTH_SHORT).show();
-                popupWindow.dismiss();
-            });
-        });
+    private View.OnClickListener copyPassword(PopupWindow popupWindow, String password) {
+        return v1 -> {
+            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("password", password);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(context, "PASSWORD HAS BEEN COPIED!", Toast.LENGTH_SHORT).show();
+            popupWindow.dismiss();
+        };
+    }
 
-        View deleteBtn = view.findViewById(R.id.delete);
-        
-        deleteBtn.setOnClickListener(v -> {
-            TextView deleteConfirmationMsg = deletePopupView.findViewById(R.id.delete_confirmation_msg);
-            deleteConfirmationMsg.setText("Are you sure, You want to delete " + credential.label + "'s credential ?");
-            final PopupWindow popupWindow = getPopupWindow(view, deletePopupView);
-
-            deletePopupView.findViewById(R.id.cancel).setOnClickListener(v1 -> popupWindow.dismiss());
-
-            deletePopupView.findViewById(R.id.delete).setOnClickListener(v2 -> {
-                AppDatabase db = AppDatabase.getInstance(context);
-                CredentialDAO credentialDao = db.getCredentialDAO();
-                
-                AsyncTask.execute(() -> credentialDao.delete(credential));
-
-                EncryptedSharedPref.delete(context, credential.label + "username");
-                EncryptedSharedPref.delete(context, credential.label + "password");
-
-                remove(credential);
-                notifyDataSetChanged();
-                Toast.makeText(context, credential.label.toUpperCase() + " GOT DELETED!", Toast.LENGTH_SHORT).show();
-                popupWindow.dismiss();
-            });
-        });
-
-        return view;
+    private View.OnClickListener revealPassword(String password, String hiddenPassword) {
+        return v12 -> {
+            TextView textView1  = credentialPopupView.findViewById(R.id.credential_password);
+            boolean isRevealed = textView1.getText().toString().equals("Password : " + hiddenPassword);
+            if(isRevealed){
+                 setView(credentialPopupView, "Password : " + password, R.id.credential_password);
+                return;
+            }
+            String hiddenPassword1 = password.replaceAll(".", "*");;
+            setView(credentialPopupView, "Password : " + hiddenPassword1, R.id.credential_password);
+        };
     }
 
     private String formatLabel(int position) {

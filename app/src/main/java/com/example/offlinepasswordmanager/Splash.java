@@ -27,10 +27,10 @@ public class Splash extends AppCompatActivity {
         return () -> {
             Intent intent;
             if (password.equals("")) {
-                intent = new Intent(getApplicationContext(), CreatePassword.class);
+                intent = new Intent(getApplicationContext(), MasterPasswordCredential.class);
 
             } else {
-                intent = new Intent(getApplicationContext(), EnterPassword.class);
+                intent = new Intent(getApplicationContext(), MasterPassword.class);
             }
             startActivity(intent);
             finish();
