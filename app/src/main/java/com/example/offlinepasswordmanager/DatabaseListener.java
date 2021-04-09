@@ -1,12 +1,13 @@
 package com.example.offlinepasswordmanager;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DatabaseListener {
     CredentialAdapter adapter;
@@ -15,7 +16,7 @@ public class DatabaseListener {
     private List<Credential> defaultCredentials;
     private final CredentialDAO credentialDao;
     private List<Credential> credentials;
-    private static DatabaseListener databaseListenerInstance= null;
+    private static DatabaseListener databaseListenerInstance = null;
 
     private DatabaseListener(Context context) {
         this.db = AppDatabase.getInstance(context);
@@ -24,23 +25,32 @@ public class DatabaseListener {
         this.defaultCredentials = new ArrayList<>();
     }
 
-    public static DatabaseListener getInstance(Context context){
-        if(databaseListenerInstance == null){
+    public static DatabaseListener getInstance(Context context) {
+        if (databaseListenerInstance == null) {
             databaseListenerInstance = new DatabaseListener(context);
         }
         return databaseListenerInstance;
     }
 
     public void getCredentials() {
-        AsyncTask.execute(() -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             credentials = credentialDao.getAll();
             defaultCredentials.addAll(credentials);
         });
     }
 
     public void insertToDb(Credential credential) {
-        AsyncTask.execute(() -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             credentialDao.insertAll(credential);
+        });
+    }
+
+    public void deleteFromDb(Credential credential) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            credentialDao.delete(credential);
         });
     }
 

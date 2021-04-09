@@ -3,7 +3,6 @@ package com.example.offlinepasswordmanager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -65,10 +63,8 @@ class CredentialAdapter extends ArrayAdapter<Credential> {
 
     private View.OnClickListener deleteCredentialOnConfirm(Credential credential, PopupWindow popupWindow) {
         return v2 -> {
-            AppDatabase db = AppDatabase.getInstance(context);
-            CredentialDAO credentialDao = db.getCredentialDAO();
-
-            AsyncTask.execute(() -> credentialDao.delete(credential));
+            DatabaseListener databaseListener = DatabaseListener.getInstance(context);
+            databaseListener.deleteFromDb(credential);
 
             EncryptedSharedPref.delete(context, credential.label + "username");
             EncryptedSharedPref.delete(context, credential.label + "password");
