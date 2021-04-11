@@ -1,6 +1,8 @@
 package com.example.offlinepasswordmanager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +16,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class MainActivity extends AppCompatActivity {
     DatabaseListener databaseListener;
+    CredentialAdapter adapter;
+    private List<Credential> defaultCredentials;
+    private List<Credential> credentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +33,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         databaseListener = DatabaseListener.getInstance(getApplicationContext());
-        databaseListener.getCredentials();
+        this.defaultCredentials = new ArrayList<>();
+
         ListView listView = findViewById(R.id.mobile_list);
-        databaseListener.attachAdapter(listView, getPopupView(R.layout.credential_popup), getPopupView(R.layout.delete_confirmation_popup));
+        adapter = new CredentialAdapter(getApplicationContext(), defaultCredentials, getPopupView(R.layout.credential_popup), getPopupView(R.layout.delete_confirmation_popup));
+        listView.setAdapter(adapter);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            credentials = databaseListener.getCredentials();
+            defaultCredentials.addAll(credentials);
+        });
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(getSaveCredentialPopup(fab));
@@ -37,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             final PopupWindow popupWindow = getPopupWindow(fab, popupView);
 
             EditText label = popupView.findViewById(R.id.label);
-            label.addTextChangedListener(new MyTextWatcher(label,databaseListener).invoke());
+            label.addTextChangedListener(new MyTextWatcher(label, credentials).invoke());
 
             EditText username = popupView.findViewById(R.id.username);
             EditText password = popupView.findViewById(R.id.subPassword);
@@ -56,21 +74,36 @@ public class MainActivity extends AppCompatActivity {
 
             Credential credential = new Credential(labelAsString);
 
-            if (labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || databaseListener.isLabelAlreadyPresentInDB(labelAsString)) {
+            if (labelAsString.equals("") || usernameAsString.equals("") || passwordAsString.equals("") || isLabelAlreadyPresentInDB(labelAsString)) {
                 return;
             }
 
             saveCredentialsInEncryptedFormat(credential, usernameAsString, passwordAsString);
-            databaseListener.insertToDb(credential);
+
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Handler handler = new Handler(Looper.getMainLooper());
+            executor.execute(() -> {
+                databaseListener.insertToDb(credential);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.add(credential);
+                        assert adapter != null;
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+            });
             popupWindow.dismiss();
         };
+    }
+
+    private boolean isLabelAlreadyPresentInDB(String label) {
+        return credentials.stream().anyMatch(e -> label.equals(e.label));
     }
 
     public void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
         EncryptedSharedPref.save(getApplicationContext(), credential.label + "username", username);
         EncryptedSharedPref.save(getApplicationContext(), credential.label + "password", password);
-
-        databaseListener.addCredentialToAdapter(credential);
     }
 
     private PopupWindow getPopupWindow(View fab, View popupView) {

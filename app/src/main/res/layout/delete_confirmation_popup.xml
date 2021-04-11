@@ -25,13 +25,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
-            android:layout_margin="35dp"/>
+            android:layout_margin="33dp"/>
 
         <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="35dp"
+            android:layout_margin="33dp"
             android:text="@string/cancel"
             />
     </LinearLayout>

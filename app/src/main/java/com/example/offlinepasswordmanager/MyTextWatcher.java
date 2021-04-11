@@ -4,13 +4,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
+import java.util.List;
+
 public class MyTextWatcher {
     private EditText label;
-    private DatabaseListener databaseListener;
+    private List<Credential> credentials;
 
-    public MyTextWatcher(EditText label,DatabaseListener databaseListener) {
+    public MyTextWatcher(EditText label, List<Credential> credentials) {
         this.label = label;
-        this.databaseListener = databaseListener;
+        this.credentials = credentials;
     }
 
     public TextWatcher invoke() {
@@ -26,12 +28,15 @@ public class MyTextWatcher {
             @Override
             public void afterTextChanged(Editable s) {
                 String labelAsString = label.getText().toString();
-                boolean isAlreadyPresent = databaseListener.isLabelAlreadyPresentInDB(labelAsString);
+                boolean isAlreadyPresent = isLabelAlreadyPresentInDB(labelAsString);
                 if (isAlreadyPresent) {
                     label.requestFocus();
                     label.setError("LABEL SHOULD BE UNIQUE");
                 }
             }
         };
+    }
+    private boolean isLabelAlreadyPresentInDB(String label) {
+        return credentials.stream().anyMatch(e -> label.equals(e.label));
     }
 }
