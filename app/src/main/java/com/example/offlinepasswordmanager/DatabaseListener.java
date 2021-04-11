@@ -42,6 +42,4 @@ public class DatabaseListener {
             credentialDao.delete(credential);
         });
     }
-
-
 }

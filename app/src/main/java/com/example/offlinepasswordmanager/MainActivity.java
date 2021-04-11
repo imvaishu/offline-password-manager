@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,7 +47,47 @@ public class MainActivity extends AppCompatActivity {
         });
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(getSaveCredentialPopup(fab));
+
+        FloatingActionButton importFab = findViewById(R.id.import_fab);
+        FloatingActionButton export_fab = findViewById(R.id.export_fab);
+        FloatingActionButton save_fab = findViewById(R.id.add_fab);
+
+        importFab.setVisibility(View.GONE);
+        export_fab.setVisibility(View.GONE);
+        save_fab.setVisibility(View.GONE);
+        fab.setOnClickListener(toggleFabViewOnClickListener(fab, importFab, export_fab, save_fab));
+
+        export_fab.setOnClickListener(exportOnClickListener());
+        importFab.setOnClickListener(importOnClickListener());
+        save_fab.setOnClickListener(getSaveCredentialPopup(save_fab));
+    }
+
+    private View.OnClickListener toggleFabViewOnClickListener(FloatingActionButton fab, FloatingActionButton importFab, FloatingActionButton export_fab, FloatingActionButton save_fab) {
+        return view -> {
+            if (!importFab.isOrWillBeShown()) {
+                importFab.show();
+                export_fab.show();
+                save_fab.show();
+                fab.setImageResource(R.drawable.cancel);
+            } else {
+                importFab.hide();
+                export_fab.hide();
+                save_fab.hide();
+                fab.setImageResource(R.drawable.add);
+            }
+        };
+    }
+
+    private View.OnClickListener importOnClickListener() {
+        return view -> {
+            Toast.makeText(MainActivity.this, "imported", Toast.LENGTH_SHORT).show();
+        };
+    }
+
+    private View.OnClickListener exportOnClickListener() {
+        return view -> {
+            Toast.makeText(MainActivity.this, "exported", Toast.LENGTH_SHORT).show();
+        };
     }
 
     private View.OnClickListener getSaveCredentialPopup(FloatingActionButton fab) {
