@@ -8,7 +8,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MasterPassword extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     EditText editText;
     String password;
 

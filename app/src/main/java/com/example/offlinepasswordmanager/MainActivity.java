@@ -46,20 +46,24 @@ public class MainActivity extends AppCompatActivity {
             defaultCredentials.addAll(credentials);
         });
 
+        initializeFabButtons();
+    }
+
+    private void initializeFabButtons() {
         FloatingActionButton fab = findViewById(R.id.fab);
 
         FloatingActionButton importFab = findViewById(R.id.import_fab);
-        FloatingActionButton export_fab = findViewById(R.id.export_fab);
-        FloatingActionButton save_fab = findViewById(R.id.add_fab);
+        FloatingActionButton exportFab = findViewById(R.id.export_fab);
+        FloatingActionButton saveFab = findViewById(R.id.save_fab);
 
         importFab.setVisibility(View.GONE);
-        export_fab.setVisibility(View.GONE);
-        save_fab.setVisibility(View.GONE);
-        fab.setOnClickListener(toggleFabViewOnClickListener(fab, importFab, export_fab, save_fab));
+        exportFab.setVisibility(View.GONE);
+        saveFab.setVisibility(View.GONE);
+        fab.setOnClickListener(toggleFabViewOnClickListener(fab, importFab, exportFab, saveFab));
 
-        export_fab.setOnClickListener(exportOnClickListener());
+        exportFab.setOnClickListener(exportOnClickListener());
         importFab.setOnClickListener(importOnClickListener());
-        save_fab.setOnClickListener(getSaveCredentialPopup(save_fab));
+        saveFab.setOnClickListener(saveCredentialPopup(saveFab));
     }
 
     private View.OnClickListener toggleFabViewOnClickListener(FloatingActionButton fab, FloatingActionButton importFab, FloatingActionButton export_fab, FloatingActionButton save_fab) {
@@ -68,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
                 importFab.show();
                 export_fab.show();
                 save_fab.show();
-                fab.setImageResource(R.drawable.cancel);
+                fab.setImageResource(R.drawable.hide_fabs_icon);
             } else {
                 importFab.hide();
                 export_fab.hide();
                 save_fab.hide();
-                fab.setImageResource(R.drawable.add);
+                fab.setImageResource(R.drawable.show_fabs_icon);
             }
         };
     }
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private View.OnClickListener getSaveCredentialPopup(FloatingActionButton fab) {
+    private View.OnClickListener saveCredentialPopup(FloatingActionButton fab) {
         return view -> {
             View popupView = getPopupView(R.layout.popup_window);
             final PopupWindow popupWindow = getPopupWindow(fab, popupView);
@@ -103,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
 
             Button save = popupView.findViewById(R.id.save);
 
-            save.setOnClickListener(getOnClickListenerOfSave(popupWindow, label, username, password));
+            save.setOnClickListener(saveOnClickListener(popupWindow, label, username, password));
         };
     }
 
-    private View.OnClickListener getOnClickListenerOfSave(PopupWindow popupWindow, EditText label, EditText username, EditText password) {
+    private View.OnClickListener saveOnClickListener(PopupWindow popupWindow, EditText label, EditText username, EditText password) {
         return v1 -> {
             String labelAsString = label.getText().toString();
             String usernameAsString = username.getText().toString();
@@ -120,29 +124,32 @@ public class MainActivity extends AppCompatActivity {
             }
 
             saveCredentialsInEncryptedFormat(credential, usernameAsString, passwordAsString);
-
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Handler handler = new Handler(Looper.getMainLooper());
-            executor.execute(() -> {
-                databaseListener.insertToDb(credential);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.add(credential);
-                        assert adapter != null;
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-            });
+            saveCredentialToDbAndAdapter(credential);
             popupWindow.dismiss();
         };
+    }
+
+    private void saveCredentialToDbAndAdapter(Credential credential) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        executor.execute(() -> {
+            databaseListener.insertToDb(credential);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.add(credential);
+                    assert adapter != null;
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        });
     }
 
     private boolean isLabelAlreadyPresentInDB(String label) {
         return credentials.stream().anyMatch(e -> label.equals(e.label));
     }
 
-    public void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
+    private void saveCredentialsInEncryptedFormat(Credential credential, String username, String password) {
         EncryptedSharedPref.save(getApplicationContext(), credential.label + "username", username);
         EncryptedSharedPref.save(getApplicationContext(), credential.label + "password", password);
     }
@@ -160,6 +167,4 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         return inflater.inflate(p, null);
     }
-
-
 }

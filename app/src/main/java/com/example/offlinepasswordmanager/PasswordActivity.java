@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MasterPasswordCredential extends AppCompatActivity {
+public class PasswordActivity extends AppCompatActivity {
     EditText editText1, editText2;
     Button confirm;
 
@@ -31,16 +31,16 @@ public class MasterPasswordCredential extends AppCompatActivity {
             String password2 = editText2.getText().toString();
 
             if (password1.equals("") || password2.equals("")) {
-                Toast.makeText(MasterPasswordCredential.this, "Please Enter Password!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PasswordActivity.this, "Please Enter Password!", Toast.LENGTH_SHORT).show();
 
             } else {
                 if (password1.equals(password2)) {
-                    EncryptedSharedPref.save(MasterPasswordCredential.this.getApplicationContext(), "PASSWORD", password1);
-                    Intent intent = new Intent(MasterPasswordCredential.this.getApplicationContext(), MainActivity.class);
-                    MasterPasswordCredential.this.startActivity(intent);
-                    MasterPasswordCredential.this.finish();
+                    EncryptedSharedPref.save(PasswordActivity.this.getApplicationContext(), "PASSWORD", password1);
+                    Intent intent = new Intent(PasswordActivity.this.getApplicationContext(), MainActivity.class);
+                    PasswordActivity.this.startActivity(intent);
+                    PasswordActivity.this.finish();
                 } else {
-                    Toast.makeText(MasterPasswordCredential.this, "Password doesn't match!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PasswordActivity.this, "Password doesn't match!", Toast.LENGTH_SHORT).show();
 
                 }
             }
